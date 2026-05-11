@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+use tauri::AppHandle;
+use tauri_plugin_store::StoreExt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -18,24 +20,22 @@ impl Default for AppConfig {
 }
 
 impl AppConfig {
-    pub fn load(store: &tauri_plugin_store::Store<tauri_plugin_store::WryAppHandle>) -> Self {
+    pub fn load(app: &AppHandle) -> Self {
+        let store = match app.store("settings.json") {
+            Ok(s) => s,
+            Err(_) => return AppConfig::default(),
+        };
         store
             .get("config")
             .and_then(|v| serde_json::from_value(v.clone()).ok())
             .unwrap_or_default()
     }
 
-    pub fn save(
-        &self,
-        store: &tauri_plugin_store::Store<tauri_plugin_store::WryAppHandle>,
-    ) -> Result<(), String> {
+    pub fn save(&self, app: &AppHandle) -> Result<(), String> {
+        let store = app.store("settings.json").map_err(|e| e.to_string())?;
         let value = serde_json::to_value(self).map_err(|e| e.to_string())?;
-        store
-            .set("config", value)
-            .map_err(|e| e.to_string())?;
-        store
-            .save()
-            .map_err(|e| format!("failed to save store: {}", e))?;
+        store.set("config", value);
+        store.save().map_err(|e| format!("failed to save store: {}", e))?;
         Ok(())
     }
 }

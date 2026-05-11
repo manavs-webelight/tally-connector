@@ -9,6 +9,15 @@ pub struct TallyClient {
     client: Client,
 }
 
+impl Clone for TallyClient {
+    fn clone(&self) -> Self {
+        Self {
+            base_url: self.base_url.clone(),
+            client: self.client.clone(),
+        }
+    }
+}
+
 impl TallyClient {
     pub fn new(base_url: String, timeout_secs: u64) -> Self {
         let client = Client::builder()
@@ -18,25 +27,21 @@ impl TallyClient {
         Self { base_url, client }
     }
 
-    pub async fn post_xml(&self, xml: &str, request_name: &str) -> Result<String, TallyClientError> {
+    pub async fn post_xml(&self, xml: &str, _request_name: &str) -> Result<String, TallyClientError> {
         let is_import = xml.contains("<IMPORTDATA");
 
-        let text = self
-            .post_to_tally(&self.base_url, xml)
-            .await
-            .or_else(|_| {
-                if is_import {
-                    return Err(TallyClientError("Import request failed".into()));
-                }
+        let text = match self.post_to_tally(&self.base_url, xml).await {
+            Ok(resp) => resp,
+            Err(e) if is_import => return Err(e),
+            Err(_) => {
+                let fallback_url = format!("{}?xmlrequest=true", self.base_url);
                 info!(
                     "Primary response not valid XML, trying fallback: {}",
-                    format!("{}?xmlrequest=true", self.base_url)
+                    fallback_url
                 );
-                self.post_to_tally(
-                    &format!("{}?xmlrequest=true", self.base_url),
-                    xml,
-                )
-            })?;
+                self.post_to_tally(&fallback_url, xml).await?
+            }
+        };
 
         Ok(text)
     }

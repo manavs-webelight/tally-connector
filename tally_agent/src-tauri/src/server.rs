@@ -1,18 +1,15 @@
 use axum::{
     extract::State,
     http::StatusCode,
-    response::IntoResponse,
     routing::{get, post},
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use tokio::sync::oneshot;
 use tracing::{error, info, warn};
 
 use crate::allow_list::AllowListService;
 use crate::config::AppConfig;
-use crate::error::TallyClientError;
 use crate::tally_client::TallyClient;
 
 #[derive(Debug, Deserialize)]
@@ -34,6 +31,7 @@ pub struct HealthResponse {
     pub service: String,
 }
 
+#[derive(Clone)]
 pub struct ServerState {
     pub tally_client: TallyClient,
     pub allow_list: AllowListService,
@@ -52,7 +50,7 @@ async fn call_tally(
         allow_list,
     }): State<ServerState>,
     Json(req): Json<TallyCallRequest>,
-) -> impl IntoResponse {
+) -> (StatusCode, Json<TallyCallResponse>) {
     info!(
         "Received request_type={}, xml_body length={}",
         req.request_type,
@@ -87,7 +85,7 @@ async fn call_tally(
                 Json(TallyCallResponse {
                     success: false,
                     tally_response: None,
-                    error: Some(e.0),
+                    error: Some(e.to_string()),
                 }),
             )
         }
@@ -108,12 +106,15 @@ pub async fn run_server(
         .route("/call", post(call_tally))
         .with_state(state);
 
-    let addr = format!("127.0.0.1:{}", config.server_port)
+    let addr_string = format!("127.0.0.1:{}", config.server_port);
+    let addr: std::net::SocketAddr = addr_string
         .parse()
         .map_err(|e| format!("invalid address: {}", e))?;
 
     info!("Starting server on {}", addr);
-    let listener = std::net::TcpListener::bind(addr)
+
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
         .map_err(|e| format!("failed to bind TCP listener: {}", e))?;
 
     axum::serve(listener, app.into_make_service())

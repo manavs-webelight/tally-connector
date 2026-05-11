@@ -1,19 +1,25 @@
-use thiserror::error;
+use thiserror::Error;
 
-#[error(transparent)]
+#[derive(Debug, Error)]
 pub struct TallyClientError(pub String);
 
-#[error(transparent)]
+#[derive(Debug, Error)]
 pub struct AppError(pub String);
 
-impl From<reqwest::Error> for TallyClientError {
-    fn from(e: reqwest::Error) -> Self {
-        TallyClientError(e.to_string())
+impl std::fmt::Display for TallyClientError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
-impl From<std::net::AddrParseError> for AppError {
-    fn from(e: std::net::AddrParseError) -> Self {
+impl std::fmt::Display for AppError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<std::io::Error> for AppError {
+    fn from(e: std::io::Error) -> Self {
         AppError(e.to_string())
     }
 }
