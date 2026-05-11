@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "tally-agent"
+version = "0.1.0"
+description = "Simple XML relay service for Tally"
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.136.1"
+uvicorn = "^0.46.0"
+requests = "^2.33.1"
+python-dotenv = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
