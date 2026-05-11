@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tally Agent</title>
+    <script type="module" src="/main.js" defer></script>
+  </head>
+
+  <body>
+    <main class="container">
+      <h1>Tally Agent</h1>
+
+      <form id="config-form">
+        <div class="field">
+          <label for="tally-url">Tally URL</label>
+          <input id="tally-url" type="text" placeholder="http://localhost:9000" required />
+        </div>
+
+        <div class="field">
+          <label for="server-port">Server Port</label>
+          <input id="server-port" type="number" placeholder="8004" required />
+        </div>
+
+        <div class="field">
+          <label for="allow-list-url">Allow List URL</label>
+          <input id="allow-list-url" type="text" placeholder="http://localhost:8005" required />
+        </div>
+
+        <div class="buttons">
+          <button id="start-btn" type="submit">Start Server</button>
+          <button id="stop-btn" type="button" disabled>Stop Server</button>
+        </div>
+      </form>
+
+      <div id="status" class="status"></div>
+    </main>
+  </body>
+</html>
