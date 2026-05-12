@@ -22,13 +22,19 @@
         <form id="config-form" class="form">
           <div class="field">
             <label class="label" for="tally-url">Tally URL</label>
-            <input
-              id="tally-url"
-              class="input"
-              type="text"
-              placeholder="http://localhost:9000"
-              required
-            />
+            <div class="input-row">
+              <input
+                id="tally-url"
+                class="input"
+                type="text"
+                placeholder="http://localhost:9000"
+                required
+              />
+              <button id="verify-btn" class="btn btn-verify" type="button">
+                Verify
+              </button>
+            </div>
+            <div id="connection-status" class="connection-status"></div>
           </div>
 
           <div class="field">

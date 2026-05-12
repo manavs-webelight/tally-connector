@@ -78,6 +78,41 @@ async fn get_server_status(app: AppHandle) -> Result<String, String> {
     }
 }
 
+#[tauri::command]
+async fn verify_tally_connection(tally_url: String) -> Result<String, String> {
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(10))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let body = r#"<?xml version="1.0" encoding="UTF-8"?>
+<ENVELOPE>
+  <HEADER>
+    <TALLYREQUEST>Run</TALLYREQUEST>
+  </HEADER>
+</ENVELOPE>"#;
+
+    let response = client
+        .post(&tally_url)
+        .header("Content-Type", "application/xml")
+        .header("Accept", "application/xml")
+        .body(body)
+        .send()
+        .await
+        .map_err(|e| format!("Connection failed: {}", e))?;
+
+    let text = response
+        .text()
+        .await
+        .map_err(|e| format!("Failed to read response: {}", e))?;
+
+    if text.contains("Tally.ERP") && text.contains("Running") {
+        Ok("connected".to_string())
+    } else {
+        Ok("unreachable".to_string())
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tracing_subscriber::fmt()
@@ -99,7 +134,8 @@ pub fn run() {
             start_server,
             stop_server,
             get_config,
-            get_server_status
+            get_server_status,
+            verify_tally_connection
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

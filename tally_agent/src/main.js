@@ -1,6 +1,6 @@
 const { invoke } = window.__TAURI__.core;
 
-let startBtn, stopBtn, statusEl;
+let startBtn, stopBtn, statusEl, verifyBtn, connectionStatus;
 
 async function loadConfig() {
   try {
@@ -62,10 +62,34 @@ async function stopServer() {
   }
 }
 
+async function verifyTallyConnection() {
+  const tallyUrl = document.getElementById("tally-url").value.trim();
+  if (!tallyUrl) return;
+
+  connectionStatus.textContent = "Verifying...";
+  connectionStatus.className = "connection-status visible verifying";
+
+  try {
+    const result = await invoke("verify_tally_connection", { tallyUrl });
+    if (result === "connected") {
+      connectionStatus.textContent = "Tally connected";
+      connectionStatus.className = "connection-status visible connected";
+    } else {
+      connectionStatus.textContent = "Tally unreachable";
+      connectionStatus.className = "connection-status visible unreachable";
+    }
+  } catch (e) {
+    connectionStatus.textContent = `Error: ${e}`;
+    connectionStatus.className = "connection-status visible error";
+  }
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
   startBtn = document.getElementById("start-btn");
   stopBtn = document.getElementById("stop-btn");
   statusEl = document.getElementById("status");
+  verifyBtn = document.getElementById("verify-btn");
+  connectionStatus = document.getElementById("connection-status");
 
   await loadConfig();
   await updateStatus();
@@ -76,4 +100,5 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   stopBtn.addEventListener("click", stopServer);
+  verifyBtn.addEventListener("click", verifyTallyConnection);
 });

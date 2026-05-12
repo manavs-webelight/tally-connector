@@ -109,6 +109,67 @@ body {
   box-shadow: 0 0 0 3px rgba(217, 139, 106, 0.12);
 }
 
+.input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-row .input {
+  flex: 1;
+}
+
+.btn-verify {
+  padding: 0.6rem 1rem;
+  font-size: 0.85rem;
+  background-color: var(--white);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+  white-space: nowrap;
+}
+
+.btn-verify:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-verify:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.connection-status {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.connection-status.visible {
+  opacity: 1;
+}
+
+.connection-status.connected {
+  color: #5a8a5e;
+  background-color: #e8f0e9;
+}
+
+.connection-status.unreachable {
+  color: #a05a5a;
+  background-color: #f0e8e8;
+}
+
+.connection-status.verifying {
+  color: var(--text-secondary);
+  background-color: var(--bg-alt);
+}
+
+.connection-status.error {
+  color: #a05a5a;
+  background-color: #f0e8e8;
+}
+
 .actions {
   display: flex;
   flex-direction: column;
