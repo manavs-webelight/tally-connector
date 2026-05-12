@@ -2,39 +2,69 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="styles.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tally Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
     <script type="module" src="/main.js" defer></script>
   </head>
 
   <body>
-    <main class="container">
-      <h1>Tally Agent</h1>
+    <div class="app">
+      <header class="header">
+        <h1 class="app-title">Tally Agent</h1>
+        <p class="app-subtitle">Connect to your Tally server</p>
+      </header>
 
-      <form id="config-form">
-        <div class="field">
-          <label for="tally-url">Tally URL</label>
-          <input id="tally-url" type="text" placeholder="http://localhost:9000" required />
-        </div>
+      <main class="content">
+        <form id="config-form" class="form">
+          <div class="field">
+            <label class="label" for="tally-url">Tally URL</label>
+            <input
+              id="tally-url"
+              class="input"
+              type="text"
+              placeholder="http://localhost:9000"
+              required
+            />
+          </div>
 
-        <div class="field">
-          <label for="server-port">Server Port</label>
-          <input id="server-port" type="number" placeholder="8004" required />
-        </div>
+          <div class="field">
+            <label class="label" for="server-port">Server Port</label>
+            <input
+              id="server-port"
+              class="input"
+              type="number"
+              placeholder="8004"
+              required
+            />
+          </div>
 
-        <div class="field">
-          <label for="allow-list-url">Allow List URL</label>
-          <input id="allow-list-url" type="text" placeholder="http://localhost:8005" required />
-        </div>
+          <div class="field">
+            <label class="label" for="allow-list-url">Allow List URL</label>
+            <input
+              id="allow-list-url"
+              class="input"
+              type="text"
+              placeholder="http://localhost:8005"
+              required
+            />
+          </div>
 
-        <div class="buttons">
-          <button id="start-btn" type="submit">Start Server</button>
-          <button id="stop-btn" type="button" disabled>Stop Server</button>
-        </div>
-      </form>
+          <div class="actions">
+            <button id="start-btn" class="btn btn-primary" type="submit">
+              Start Server
+            </button>
+            <button id="stop-btn" class="btn btn-secondary" type="button" disabled>
+              Stop Server
+            </button>
+          </div>
+        </form>
 
-      <div id="status" class="status"></div>
-    </main>
+        <div id="status" class="status"></div>
+      </main>
+    </div>
   </body>
 </html>

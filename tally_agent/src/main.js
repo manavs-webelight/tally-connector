@@ -18,7 +18,7 @@ async function updateStatus() {
     const status = await invoke("get_server_status");
     const isRunning = status !== "stopped";
     statusEl.textContent = isRunning ? `Server ${status}` : "Server stopped";
-    statusEl.className = `status ${isRunning ? "running" : "stopped"}`;
+    statusEl.className = `status visible ${isRunning ? "running" : "stopped"}`;
     stopBtn.disabled = !isRunning;
     startBtn.disabled = isRunning;
   } catch (e) {
@@ -40,12 +40,12 @@ async function startServer() {
       },
     });
     statusEl.textContent = result;
-    statusEl.className = "status running";
+    statusEl.className = "status visible running";
     stopBtn.disabled = false;
     startBtn.disabled = true;
   } catch (e) {
     statusEl.textContent = `Error: ${e}`;
-    statusEl.className = "status stopped";
+    statusEl.className = "status visible error";
   }
 }
 
@@ -53,11 +53,12 @@ async function stopServer() {
   try {
     const result = await invoke("stop_server");
     statusEl.textContent = result;
-    statusEl.className = "status stopped";
+    statusEl.className = "status visible stopped";
     stopBtn.disabled = true;
     startBtn.disabled = false;
   } catch (e) {
     statusEl.textContent = `Error: ${e}`;
+    statusEl.className = "status visible error";
   }
 }
 
