@@ -106,7 +106,7 @@ pub async fn run_server(
         .route("/call", post(call_tally))
         .with_state(state);
 
-    let addr_string = format!("127.0.0.1:{}", config.server_port);
+    let addr_string = format!("0.0.0.0:{}", config.server_port);
     let addr: std::net::SocketAddr = addr_string
         .parse()
         .map_err(|e| format!("invalid address: {}", e))?;
