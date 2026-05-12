@@ -85,23 +85,11 @@ async fn verify_tally_connection(tally_url: String) -> Result<String, String> {
         .build()
         .map_err(|e| e.to_string())?;
 
-    let body = r#"<?xml version="1.0" encoding="UTF-8"?>
-<ENVELOPE>
-  <HEADER>
-    <TALLYREQUEST>Run</TALLYREQUEST>
-  </HEADER>
-</ENVELOPE>"#;
-
-    let response = client
-        .post(&tally_url)
-        .header("Content-Type", "application/xml")
-        .header("Accept", "application/xml")
-        .body(body)
+    let text = client
+        .get(&tally_url)
         .send()
         .await
-        .map_err(|e| format!("Connection failed: {}", e))?;
-
-    let text = response
+        .map_err(|e| format!("Connection failed: {}", e))?
         .text()
         .await
         .map_err(|e| format!("Failed to read response: {}", e))?;
