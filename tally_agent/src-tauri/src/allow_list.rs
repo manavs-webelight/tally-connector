@@ -1,5 +1,5 @@
 use reqwest::Client;
-use tracing::{warn};
+use tracing::{error, warn};
 
 #[derive(Clone)]
 pub struct AllowListService {
@@ -10,7 +10,7 @@ pub struct AllowListService {
 impl AllowListService {
     pub fn new(url: String) -> Self {
         let client = Client::builder()
-            .timeout(std::time::Duration::from_secs(5))
+            .timeout(std::time::Duration::from_secs(60))
             .build()
             .expect("reqwest client should build");
         Self { url, client }
@@ -30,8 +30,8 @@ impl AllowListService {
                 false
             }
             Err(e) => {
-                warn!("Allow list check failed: {}, defaulting to allowed", e);
-                true
+                error!("Allow list check failed: {} — blocking request for safety", e);
+                false
             }
         }
     }

@@ -110,31 +110,49 @@ body {
 }
 
 .input-row {
-  display: flex;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: end;
+  width: 100%;
 }
 
 .input-row .input {
-  flex: 1;
+  width: 100%;
 }
 
-.btn-verify {
-  padding: 0.6rem 1rem;
+.input-row .btn-verify {
+  min-width: 7rem;
+  padding: 0.9rem 1rem;
   font-size: 0.85rem;
   background-color: var(--white);
   color: var(--text-primary);
   border: 1.5px solid var(--border);
   white-space: nowrap;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
 }
 
-.btn-verify:hover:not(:disabled) {
+.input-row .btn-verify:hover:not(:disabled) {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.btn-verify:disabled {
+.input-row .btn-verify:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+  .input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .input-row .btn-verify {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .connection-status {
