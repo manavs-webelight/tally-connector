@@ -20,10 +20,27 @@ impl AllowListService {
         let url = format!("{}/allow?request_type={}", self.url, request_type);
         match self.client.get(&url).send().await {
             Ok(resp) if resp.status().is_success() => {
-                resp.json::<serde_json::Value>()
-                    .await
-                    .map(|v| v.get("allowed").and_then(|a| a.as_bool()).unwrap_or(false))
-                    .unwrap_or(false)
+                let v: serde_json::Value = match resp.json().await {
+                    Ok(v) => v,
+                    Err(_) => return false,
+                };
+
+                let status = match v.get("status").and_then(|s| s.as_str()) {
+                    Some(s) => s,
+                    None => return false,
+                };
+                if status != "SUCCESS" {
+                    warn!("Allow list returned non-SUCCESS status: {}", status);
+                    return false;
+                }
+
+                let allowed = v
+                    .get("data")
+                    .and_then(|d| d.get("allowed"))
+                    .and_then(|a| a.as_bool())
+                    .unwrap_or(false);
+
+                allowed
             }
             Ok(_) => {
                 warn!("Allow list returned non-200 for '{}'", request_type);
