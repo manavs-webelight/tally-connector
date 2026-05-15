@@ -40,7 +40,7 @@ pub struct ServerState {
 async fn health() -> Json<HealthResponse> {
     Json(HealthResponse {
         status: "ok".to_string(),
-        service: "tally-agent".to_string(),
+        service: "Squirrel IntelliTools Tally Agent".to_string(),
     })
 }
 
@@ -85,7 +85,7 @@ async fn call_tally(
                 Json(TallyCallResponse {
                     success: false,
                     tally_response: None,
-                    error: Some(e.to_string()),
+                    error: Some("An error occured while sending request to tally, please check if tally is running".to_string()),
                 }),
             )
         }

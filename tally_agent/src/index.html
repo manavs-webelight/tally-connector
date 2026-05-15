@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tally Agent</title>
+    <title>Squirrel IntelliTools Tally Agent</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -14,7 +14,7 @@
   <body>
     <div class="app">
       <header class="header">
-        <h1 class="app-title">Tally Agent</h1>
+        <h1 class="app-title">Squirrel IntelliTools Tally Agent</h1>
         <p class="app-subtitle">Connect to your Tally server</p>
       </header>
 
@@ -22,18 +22,13 @@
         <form id="config-form" class="form">
           <div class="field">
             <label class="label" for="tally-url">Tally URL</label>
-            <div class="input-row">
-              <input
-                id="tally-url"
-                class="input"
-                type="text"
-                placeholder="http://localhost:9000"
-                required
-              />
-              <button id="verify-btn" class="btn btn-verify" type="button">
-                Verify
-              </button>
-            </div>
+            <input
+              id="tally-url"
+              class="input"
+              type="text"
+              placeholder="http://localhost:9000"
+              required
+            />
             <div id="connection-status" class="connection-status"></div>
           </div>
 
@@ -60,7 +55,7 @@
           </div>
 
           <div class="actions">
-            <button id="start-btn" class="btn btn-primary" type="submit">
+            <button id="start-btn" class="btn btn-primary" type="submit" disabled>
               Start Server
             </button>
             <button id="stop-btn" class="btn btn-secondary" type="button" disabled>

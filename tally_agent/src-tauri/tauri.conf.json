@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "tally_agent",
+  "productName": "Squirrel IntelliTools Tally Agent",
   "version": "0.1.0",
-  "identifier": "com.webelight.tallyapp",
+  "identifier": "com.squirrelintellitools.tallyagent",
   "build": {
     "frontendDist": "../src"
   },
@@ -10,7 +10,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "Tally Agent",
+        "title": "Squirrel IntelliTools Tally Agent",
         "width": 600,
         "height": 500
       }

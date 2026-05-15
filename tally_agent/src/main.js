@@ -1,6 +1,8 @@
 const { invoke } = window.__TAURI__.core;
 
-let startBtn, stopBtn, statusEl, verifyBtn, connectionStatus;
+let startBtn, stopBtn, statusEl, connectionStatus;
+let tallyUrlInput, serverPortInput, allowListUrlInput;
+let isServerRunning = false;
 
 async function loadConfig() {
   try {
@@ -16,20 +18,71 @@ async function loadConfig() {
 async function updateStatus() {
   try {
     const status = await invoke("get_server_status");
-    const isRunning = status !== "stopped";
-    statusEl.textContent = isRunning ? `Server ${status}` : "Server stopped";
+    isServerRunning = status !== "stopped";
+    statusEl.textContent = isServerRunning ? `Server ${status}` : "Server stopped";
     statusEl.className = `status visible ${isRunning ? "running" : "stopped"}`;
     stopBtn.disabled = !isRunning;
     startBtn.disabled = isRunning;
+    setFieldsDisabled(isRunning);
   } catch (e) {
     console.error("Failed to get status:", e);
   }
 }
 
+function validateForm() {
+  const tallyUrl = tallyUrlInput.value.trim();
+  const serverPort = serverPortInput.value.trim();
+  const allowListUrl = allowListUrlInput.value.trim();
+
+  const allFilled = tallyUrl && serverPort && allowListUrl;
+  startBtn.disabled = !allFilled || isServerRunning;
+}
+
+function setFieldsDisabled(disabled) {
+  tallyUrlInput.disabled = disabled;
+  serverPortInput.disabled = disabled;
+  allowListUrlInput.disabled = disabled;
+}
+
+async function verifyTallyConnection() {
+  const tallyUrl = tallyUrlInput.value.trim();
+  if (!tallyUrl) return false;
+
+  connectionStatus.textContent = "Verifying Tally connection...";
+  connectionStatus.className = "connection-status visible verifying";
+
+  try {
+    const result = await invoke("verify_tally_connection", { tallyUrl });
+    if (result === "connected") {
+      connectionStatus.textContent = "Tally connected";
+      connectionStatus.className = "connection-status visible connected";
+      return true;
+    } else {
+      connectionStatus.textContent = "Tally unreachable";
+      connectionStatus.className = "connection-status visible unreachable";
+      return false;
+    }
+  } catch (e) {
+    connectionStatus.textContent = `Error: ${e}`;
+    connectionStatus.className = "connection-status visible error";
+    return false;
+  }
+}
+
 async function startServer() {
-  const tallyUrl = document.getElementById("tally-url").value.trim();
-  const serverPortVal = parseInt(document.getElementById("server-port").value);
-  const allowListUrl = document.getElementById("allow-list-url").value.trim();
+  const tallyUrl = tallyUrlInput.value.trim();
+  const serverPortVal = parseInt(serverPortInput.value);
+  const allowListUrl = allowListUrlInput.value.trim();
+
+  statusEl.textContent = "Verifying Tally connection before starting...";
+  statusEl.className = "status visible verifying";
+
+  const isVerified = await verifyTallyConnection();
+  if (!isVerified) {
+    statusEl.textContent = "Cannot start server: Tally is not connected";
+    statusEl.className = "status visible error";
+    return;
+  }
 
   try {
     const result = await invoke("start_server", {
@@ -39,10 +92,12 @@ async function startServer() {
         allow_list_url: allowListUrl,
       },
     });
+    isServerRunning = true;
     statusEl.textContent = result;
     statusEl.className = "status visible running";
     stopBtn.disabled = false;
     startBtn.disabled = true;
+    setFieldsDisabled(true);
   } catch (e) {
     statusEl.textContent = `Error: ${e}`;
     statusEl.className = "status visible error";
@@ -52,35 +107,15 @@ async function startServer() {
 async function stopServer() {
   try {
     const result = await invoke("stop_server");
+    isServerRunning = false;
     statusEl.textContent = result;
     statusEl.className = "status visible stopped";
     stopBtn.disabled = true;
     startBtn.disabled = false;
+    setFieldsDisabled(false);
   } catch (e) {
     statusEl.textContent = `Error: ${e}`;
     statusEl.className = "status visible error";
-  }
-}
-
-async function verifyTallyConnection() {
-  const tallyUrl = document.getElementById("tally-url").value.trim();
-  if (!tallyUrl) return;
-
-  connectionStatus.textContent = "Verifying...";
-  connectionStatus.className = "connection-status visible verifying";
-
-  try {
-    const result = await invoke("verify_tally_connection", { tallyUrl });
-    if (result === "connected") {
-      connectionStatus.textContent = "Tally connected";
-      connectionStatus.className = "connection-status visible connected";
-    } else {
-      connectionStatus.textContent = "Tally unreachable";
-      connectionStatus.className = "connection-status visible unreachable";
-    }
-  } catch (e) {
-    connectionStatus.textContent = `Error: ${e}`;
-    connectionStatus.className = "connection-status visible error";
   }
 }
 
@@ -88,11 +123,18 @@ window.addEventListener("DOMContentLoaded", async () => {
   startBtn = document.getElementById("start-btn");
   stopBtn = document.getElementById("stop-btn");
   statusEl = document.getElementById("status");
-  verifyBtn = document.getElementById("verify-btn");
   connectionStatus = document.getElementById("connection-status");
+
+  tallyUrlInput = document.getElementById("tally-url");
+  serverPortInput = document.getElementById("server-port");
+  allowListUrlInput = document.getElementById("allow-list-url");
 
   await loadConfig();
   await updateStatus();
+
+  tallyUrlInput.addEventListener("input", validateForm);
+  serverPortInput.addEventListener("input", validateForm);
+  allowListUrlInput.addEventListener("input", validateForm);
 
   document.getElementById("config-form").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -100,5 +142,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   stopBtn.addEventListener("click", stopServer);
-  verifyBtn.addEventListener("click", verifyTallyConnection);
+
+  validateForm();
 });

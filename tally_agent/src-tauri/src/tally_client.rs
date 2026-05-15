@@ -57,7 +57,15 @@ impl TallyClient {
             .await
             .map_err(|e| {
                 error!("Tally request failed: {}", e);
-                TallyClientError(e.to_string())
+                let err_msg = e.to_string();
+                if err_msg.contains("Connection refused")
+                    || err_msg.contains("connect timed out")
+                    || err_msg.contains("tcp")
+                {
+                    TallyClientError("Your Tally server is disconnected, please start it.".to_string())
+                } else {
+                    TallyClientError(err_msg)
+                }
             })?
             .error_for_status()
             .map_err(|e| TallyClientError(e.to_string()))?
