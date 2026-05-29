@@ -20,9 +20,9 @@ async function updateStatus() {
     const status = await invoke("get_server_status");
     isServerRunning = status !== "stopped";
     statusEl.textContent = isServerRunning ? `Server ${status}` : "Server stopped";
-    statusEl.className = `status visible ${isRunning ? "running" : "stopped"}`;
-    stopBtn.disabled = !isRunning;
-    startBtn.disabled = isRunning;
+    statusEl.className = `status visible ${isServerRunning ? "running" : "stopped"}`;
+    stopBtn.disabled = !isServerRunning;
+    startBtn.disabled = isServerRunning;
     setFieldsDisabled(isRunning);
   } catch (e) {
     console.error("Failed to get status:", e);
@@ -142,6 +142,15 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   stopBtn.addEventListener("click", stopServer);
+
+  // Auto-start server if Tally is connected on app launch
+  const verified = await verifyTallyConnection();
+  if (verified) {
+    const status = await invoke("get_server_status");
+    if (status === "stopped") {
+      await startServer();
+    }
+  }
 
   validateForm();
 });
