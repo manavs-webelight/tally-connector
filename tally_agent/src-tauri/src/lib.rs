@@ -85,16 +85,13 @@ async fn verify_tally_connection(tally_url: String) -> Result<String, String> {
         .build()
         .map_err(|e| e.to_string())?;
 
-    let text = client
+    let resp = client
         .get(&tally_url)
         .send()
         .await
-        .map_err(|e| format!("Connection failed: {}", e))?
-        .text()
-        .await
-        .map_err(|e| format!("Failed to read response: {}", e))?;
+        .map_err(|e| format!("Connection failed: {}", e))?;
 
-    if text.contains("Tally.ERP") && text.contains("Running") {
+    if resp.status().is_success() {
         Ok("connected".to_string())
     } else {
         Ok("unreachable".to_string())
